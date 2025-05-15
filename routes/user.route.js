@@ -1,5 +1,6 @@
 import express from "express";
 import UserModel from "../models/user.model.js";
+import logOutModel from "../models/logOut.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -7,7 +8,7 @@ let userRouter = express.Router();
 let regexPass =
   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;"'<>,.?/\\|]).{8,}$/;
 
-//user registration
+// user registration
 userRouter.post("/register", async (req, res) => {
   const { email, password, role } = req.body;
   if (!regexPass.test(password)) {
@@ -28,16 +29,12 @@ userRouter.post("/register", async (req, res) => {
         Number(process.env.SALTROUNDS),
         async (err, hash) => {
           if (err) {
-            console.log("Password invalid!", err)
+            console.log("Password invalid!", err);
             return res.json({ msg: "Password invalid!", err });
           } else {
             let newUser = await UserModel({ email, role, password: hash });
             await newUser.save();
-            console.log(
-              "Registration successful!",
-              "newUser:",
-              newUser
-            );
+            console.log("Registration successful!", "newUser:", newUser);
             return res.json({
               msg: "Registration successful!",
               "newUser:": newUser,
@@ -86,6 +83,23 @@ userRouter.post("/login", async (req, res) => {
   } catch (error) {
     console.log("error in log in route!", err);
     return res.json({ msg: "error in log in route!", err });
+  }
+});
+
+// user logout
+userRouter.post("/logout", async (req, res) => {
+  const { token } = req.body;
+  try {
+    let token = req.headers.authorization?.split(" ")[1]
+    if(!token){
+        return res.json({msg: "Invalid token!"})
+    }
+    const logout = await logOutModel.create({ token });
+    console.log("log out succussfull!", token);
+    return res.json({ msg: "log out succussfull!", token });
+  } catch (error) {
+    console.log("error in log out route!", error);
+    return res.json({ msg: "error in log out route!", error });
   }
 });
 

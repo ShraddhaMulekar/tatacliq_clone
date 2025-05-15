@@ -1,6 +1,6 @@
 import express from "express";
 import UserModel from "../models/user.model.js";
-import logOutModel from "../models/logOut.model.js";
+import LogOutModel from "../models/logOut.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -70,8 +70,9 @@ userRouter.post("/login", async (req, res) => {
         if (result) {
           let payload = {
             userId: matchEmail._id,
+            role : matchEmail.role
           };
-          let token = jwt.sign(payload, process.env.SECREATE_KEY);
+          let token = jwt.sign(payload, process.env.JWT_SECREATE_KEY, {expiresIn: "48h"});
           console.log("User Log in successful!", token);
           return res.json({ msg: "User Log in successful!", token });
         } else {
@@ -94,7 +95,7 @@ userRouter.post("/logout", async (req, res) => {
     if(!token){
         return res.json({msg: "Invalid token!"})
     }
-    const logout = await logOutModel.create({ token });
+    const logout = await LogOutModel.create({ token });
     console.log("log out succussfull!", token);
     return res.json({ msg: "log out succussfull!", token });
   } catch (error) {

@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 
-const logOutSchema = new mongoose.Schema({
+const LogOutSchema = new mongoose.Schema({
     token :{type:String, required:true},
     time : {type:Date, default:Date.now}
 }, {
     versionKey:false
 })
 
-const logOutModel = mongoose.model("logout", logOutSchema)
+const LogOutModel = mongoose.model("logout", LogOutSchema)
 
-export default logOutModel
+export default LogOutModel

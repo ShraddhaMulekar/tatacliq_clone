@@ -9,11 +9,6 @@ const auth = (req, res, next)=>{
 
     try {
         let decoded = jwt.verify(token, process.env.JWT_SECREATE_KEY)
-
-        if(decoded.role !== "admin"){
-            return res.json({msg: "Only Admin!"})
-        }
-
         req.user = decoded
         next()
 

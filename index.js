@@ -5,6 +5,7 @@ import connectToDB from "./configDB/db.js"
 import userRouter from "./routes/user.route.js"
 import productRouter from "./routes/product.route.js"
 import addToCartRouter from "./routes/addToCart.route.js"
+import orderRouter from "./routes/Order.route.js"
 
 dotenv.config()
 
@@ -16,6 +17,7 @@ app.use(cors())
 app.use("/user", userRouter)
 app.use("/product", productRouter)
 app.use("/cart", addToCartRouter)
+app.use("/order", orderRouter)
 
 app.listen(port, async ()=>{
     await connectToDB()

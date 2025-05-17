@@ -5,85 +5,89 @@ import AddToCartModel from "../models/addToCart.model.js";
 
 const addToCartRouter = express.Router();
 
-// add to cart functionality
+// ➕ Add to Cart
 addToCartRouter.post("/addToCart", auth, async (req, res) => {
   const { productId, quantity } = req.body;
   const userId = req.user.id;
+
   try {
     const product = await ProductModel.findById(productId);
     if (!product) {
-      return res.json({ msg: "Product not found!" });
+      return res.status(404).json({ msg: "Product not found!" });
     }
+
     const cart = await AddToCartModel.findOne({ userId });
     if (!cart) {
-      let newCart = new AddToCartModel({
+      const newCart = new AddToCartModel({
         userId,
         item: [{ productId, quantity }],
       });
       await newCart.save();
-      return res.json({ msg: "Cart created and product added!", newCart });
-    } else {
-      let existingProduct = cart.item.find(
-        (item) => item.productId.toString() === productId.toString()
-      );
-      if (existingProduct) {
-        existingProduct.quantity += quantity;
-        await cart.save()
-        return res.json({msg:"product quantity updated!", cart})
-      } else {
-        cart.item.push({ productId, quantity });
-        await cart.save()
-        return res.json({msg:"product added to cart!", cart})
-      }
+      return res.json({ msg: "Cart created and product added!", cart: newCart });
     }
-    await cart.save();
-    console.log("cart add successful!", cart);
-    return res.json({ msg: "cart add successful!", cart });
+
+    // Check if product already exists in cart
+    const existingProduct = cart.item.find(
+      (item) => item.productId.toString() === productId.toString()
+    );
+
+    if (existingProduct) {
+      existingProduct.quantity += quantity;
+      await cart.save();
+      return res.json({ msg: "Product quantity updated!", cart });
+    } else {
+      cart.item.push({ productId, quantity });
+      await cart.save();
+      return res.json({ msg: "Product added to cart!", cart });
+    }
+
   } catch (error) {
-    console.log("error in add to cart", error);
-    return res.json({ msg: "error in add to cart", error });
+    console.log("Error in add to cart", error);
+    return res.status(500).json({ msg: "Error in add to cart", error });
   }
 });
 
-// product remove from cart
-addToCartRouter.delete("/remove_cart", auth, async (req, res) => {
+// ❌ Remove product from cart
+addToCartRouter.delete("/removeCart", auth, async (req, res) => {
   const { productId } = req.body;
   const userId = req.user.id;
 
   try {
     const cart = await AddToCartModel.findOne({ userId });
     if (!cart) {
-      return res.json({ msg: "cart not found!" });
+      return res.status(404).json({ msg: "Cart not found!" });
     }
+
     cart.item = cart.item.filter(
       (ele) => ele.productId.toString() !== productId.toString()
     );
 
     await cart.save();
-    console.log("Product remove from cart!", cart);
-    return res.json({ msg: "Product remove from cart!", cart });
+    return res.json({ msg: "Product removed from cart!", cart });
   } catch (error) {
-    console.log("error in remove product cart", error);
-    return res.json({ msg: "error in remove product cart", error });
+    console.log("Error in removing product from cart", error);
+    return res.status(500).json({ msg: "Error in removing product from cart", error });
   }
 });
 
-//display cart
-addToCartRouter.get("/checkAddToCart", auth, async(req, res) => {
-    try {
-        if (!req.user.id){
-            return res.json({msg:"product not found!"})
-        } 
-        let cart = await AddToCartModel.findOne({ userId: req.user.id }).populate("item.productId")
-        if (!cart){
-            return res.json({msg: "cart not found!"})
-        }
-        return res.json({msg:"cart found successful!", cart})
-
-    } catch (error) {
-        console.log("error in display cart!", error)
-        res.json({ msg: "error in display cart!", error});
+// 👀 View Cart
+addToCartRouter.get("/checkAddToCart", auth, async (req, res) => {
+  try {
+    if (!req.user.id) {
+      return res.status(401).json({ msg: "User not authenticated!" });
     }
+
+    const cart = await AddToCartModel.findOne({ userId: req.user.id }).populate("item.productId");
+    if (!cart) {
+      return res.status(404).json({ msg: "Cart not found!" });
+    }
+
+    return res.json({ msg: "Cart fetched successfully!", cart });
+
+  } catch (error) {
+    console.log("Error in displaying cart", error);
+    return res.status(500).json({ msg: "Error in displaying cart", error });
+  }
 });
 
 export default addToCartRouter;

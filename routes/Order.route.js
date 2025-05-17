@@ -5,41 +5,52 @@ import OrderModel from "../models/order.model.js";
 
 const orderRouter = express.Router();
 
-// add order
+// ➕ Place Order
 orderRouter.post("/buy", auth, async (req, res) => {
   const { productId, quantity, totalPrice, status } = req.body;
   const userId = req.user.id;
+
   try {
-    const product = await ProductModel.findOne({ productId });
-    if (!product) {
-      return res.json({ msg: "product not found" });
+    const qty = Number(quantity);
+    const price = Number(totalPrice);
+
+    if (!productId || qty <= 0 || price <= 0) {
+      return res
+        .status(400)
+        .json({ msg: "Invalid product or purchase details." });
     }
+
+    const product = await ProductModel.findById(productId);
+    if (!product) {
+      return res.status(404).json({ msg: "Product not found!" });
+    }
+
     const newOrder = new OrderModel({
       userId,
       productId,
-      quantity,
-      totalPrice,
-      status,
+      quantity: qty,
+      totalPrice: price,
+      status: status || "pending",
     });
+
     await newOrder.save();
-    console.log("order buy successful!", newOrder);
-    return res.json({ msg: "order buy successful!", newOrder });
+    console.info("✅ Order placed:", newOrder);
+    return res.status(201).json({ msg: "Order placed successfully!", newOrder });
   } catch (error) {
-    console.log("error in buy order!", error);
-    return res.json({ msg: "error in buy order!", error });
+    console.error("❌ Error in placing order:", error);
+    return res.status(500).json({ msg: "Error placing order", error });
   }
 });
 
-// display order
+// 📦 View Orders
 orderRouter.get("/", auth, async (req, res) => {
   try {
     const userId = req.user.id;
-    let orders = await OrderModel.find({ userId }).populate("productId");
-    console.log("your order!..", orders);
-    return res.json({ msg: "your order!..", orders });
+    const orders = await OrderModel.find({ userId }).populate("productId");
+    return res.status(200).json({ msg: "Orders fetched successfully!", orders });
   } catch (error) {
-    console.log("error in order route", error);
-    res.json({ msg: "error in order route", error });
+    console.error("❌ Error in fetching orders:", error);
+    return res.status(500).json({ msg: "Error fetching orders", error });
   }
 });
 

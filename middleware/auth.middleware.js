@@ -9,7 +9,7 @@ const auth = (req, res, next)=>{
 
     try {
         let decoded = jwt.verify(token, process.env.JWT_SECREATE_KEY)
-        req.user = decoded
+        req.user = { id: decoded.userId }
         next()
 
     } catch (error) {

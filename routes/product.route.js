@@ -5,7 +5,7 @@ import isAdmin from "../middleware/admin.middleware.js";
 
 const productRouter = express.Router();
 
-// add product
+// add product only for admin
 productRouter.post("/add-products", auth, isAdmin, async (req, res) => {
   const {
     brand,
@@ -40,7 +40,7 @@ productRouter.post("/add-products", auth, isAdmin, async (req, res) => {
   }
 });
 
-//update product
+//update product only for admin
 productRouter.patch("/update/:id", auth, isAdmin, async (req, res) => {
   const { id } = req.params;
   const updateData = req.body;
@@ -61,7 +61,7 @@ productRouter.patch("/update/:id", auth, isAdmin, async (req, res) => {
   }
 });
 
-//delete product
+//delete product only for admin
 productRouter.delete("/delete/:id", auth, isAdmin, async (req, res) => {
   const { id } = req.params;
   try {
@@ -74,7 +74,7 @@ productRouter.delete("/delete/:id", auth, isAdmin, async (req, res) => {
   }
 });
 
-// check all products
+// check all products public route (guest,user,admin)
 productRouter.get("/all-products", async (req, res) => {
   const queryParameter = qs.parse(req.query);
   const { search, filter, sort, page, limit } = queryParameter;

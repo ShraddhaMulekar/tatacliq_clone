@@ -7,8 +7,8 @@ import Products from './components/Products'
 import ProductDetail from './components/ProductDetail'
 import Cart from './components/Cart'
 import Register from './components/Register'
-import Login from './components/LogIn'
 import Orders from './components/Order'
+import Login from "./components/Login"
 
 function App() {
 

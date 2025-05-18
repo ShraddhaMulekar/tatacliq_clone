@@ -1,0 +1,36 @@
+.orders-container {
+  width: 900px;
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.orders-container h2 {
+  width: 100%;
+}
+
+.order-card {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+}
+
+.order-card img {
+  width: 120px;
+  border-radius: 6px;
+}
+
+.order-card h4 {
+  width: fit-content;
+  margin: 0;
+}
+
+.order-card p {
+  width: fit-content;
+  margin: 4px 0;
+}
